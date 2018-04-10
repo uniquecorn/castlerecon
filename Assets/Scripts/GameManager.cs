@@ -4,15 +4,37 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+	[HideInInspector]
 	public CastleObject selectedObject;
+	[HideInInspector]
 	public CastleObject hoveredObject;
 
 	public Slot slotPrefab;
+	public GameObject gemSlotPrefab;
 
-	public Color attackColor;
-	public Color shieldColor;
+	[System.Serializable]
+	public struct EffectStyle
+	{
+		public Unit.ActionType actionType;
+		public Color effectColor;
+		public Sprite effectSprite;
+		public bool showValue;
+	}
+
+	public EffectStyle[] effectStyles;
 
 	public Board board;
+	public GemSlot[] gemSlots;
+	public int gemsAvailable;
+
+	public GameObject boardPrefab;
+
+	public enum GameState
+	{
+		DEFENCE,
+		OFFENCE,
+		DONE
+	}
 
 	public static GameManager instance;
 	// Use this for initialization
@@ -20,7 +42,52 @@ public class GameManager : MonoBehaviour
 	{
 		instance = this;
 	}
+
+	private void Start()
+	{
+		CreateBoard();
+	}
 	
+	void CreateBoard()
+	{
+		board = Instantiate(boardPrefab, Vector3.zero, Quaternion.identity).GetComponent<Board>();
+	}
+
+	public EffectStyle GetStyle(Unit.ActionType _actionType)
+	{
+		for (int i = 0; i < effectStyles.Length; i++)
+		{
+			if (effectStyles[i].actionType == _actionType)
+			{
+				return effectStyles[i];
+			}
+		}
+		print("No style found!");
+		return effectStyles[0];
+	}
+
+	public void HideDefence()
+	{
+		board.HideDefence();
+	}
+
+	public bool UseGems(int gems = 1)
+	{
+		if(gemsAvailable >= gems)
+		{
+			for(int i = (3 - gemsAvailable); i < (3 - gemsAvailable + gems);i++)
+			{
+				gemSlots[i].SetGem(GemSlot.GemState.INACTIVE);
+			}
+			gemsAvailable -= gems;
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
 	// Update is called once per frame
 	void Update ()
 	{
@@ -184,6 +251,10 @@ public class GameManager : MonoBehaviour
 					selectedObject.Tap(touchPos);
 				}
 			}
+		}
+		if(Input.GetKeyDown("x"))
+		{
+			board.HideDefence();
 		}
 	}
 }

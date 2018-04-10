@@ -5,12 +5,17 @@ using UnityEngine;
 public class Unit : CastleObject
 {
 	public SpriteRenderer backingCircle;
+	public SpriteMask backingMask;
 	public SpriteRenderer unitRenderer;
+
+	public Sprite unitSprite;
+	public Sprite hiddenSprite;
 
 	public enum ActionType
 	{
 		ATTACK,
-		SHIELD
+		SHIELD,
+		MAGICDAMAGE
 	}
 
 	[System.Serializable]
@@ -18,11 +23,12 @@ public class Unit : CastleObject
 	{
 		public int xOffset;
 		public int yOffset;
-		public int damage;
+		public int value;
 		public ActionType actionType;
 	}
 
 	public int health;
+	public int gemCost;
 	public Action[] actions;
 
 	public Slot slot;
@@ -33,6 +39,7 @@ public class Unit : CastleObject
 		PLACED
 	}
 	public State state;
+	public GemSlot[] gemSlots;
 
 	private float spawnTimer;
 
@@ -40,8 +47,11 @@ public class Unit : CastleObject
 	{
 		coll.enabled = false;
 		backingCircle.maskInteraction = SpriteMaskInteraction.VisibleInsideMask;
+		backingMask.gameObject.SetActive(false);
 		state = State.PLACED;
 		slot = _slot;
+		slot.cardMask.gameObject.SetActive(true);
+		//SetGems(GemSlot.GemState.ACTIVE);
 		//slot.affliation = Slot.Affliation.OFFENCE;
 		slot.unit = this;
 		CommitActions();
@@ -52,10 +62,21 @@ public class Unit : CastleObject
 		coll.enabled = true;
 		RemoveActions();
 		backingCircle.transform.localScale = Vector3.one;
+		backingMask.gameObject.SetActive(true);
 		backingCircle.maskInteraction = SpriteMaskInteraction.None;
 		spawnTimer = 0;
+		//SetGems(GemSlot.GemState.INACTIVE);
 		state = State.DRAGGED;
+		slot.cardMask.gameObject.SetActive(false);
 		slot = null;
+	}
+
+	public void TestActions(Slot _slot)
+	{
+		for (int i = 0; i < actions.Length; i++)
+		{
+			TestAction(_slot,actions[i]);
+		}
 	}
 
 	public void RemoveActions()
@@ -76,35 +97,34 @@ public class Unit : CastleObject
 
 	public void DoAction(Action _action)
 	{
-		Slot tempSlot = GetSlot(_action.xOffset, _action.yOffset);
-		if(_action.actionType == ActionType.ATTACK)
-		{
-			tempSlot.TakeDamage(_action.damage);
-		}
-		else if(_action.actionType == ActionType.SHIELD)
-		{
-			tempSlot.Shield();
-		}
+		Slot tempSlot = GetSlot(slot, _action.xOffset, _action.yOffset);
+		tempSlot.DoAction(_action);
 	}
+	
 	public void UndoAction(Action _action)
 	{
-		Slot tempSlot = GetSlot(_action.xOffset, _action.yOffset);
-		if (_action.actionType == ActionType.ATTACK)
-		{
-			tempSlot.RemoveDamage(_action.damage);
-		}
-		else if (_action.actionType == ActionType.SHIELD)
-		{
-			//tempSlot.Shield();
-		}
+		Slot tempSlot = GetSlot(slot,_action.xOffset, _action.yOffset);
+		tempSlot.UndoAction(_action);
 	}
 
-	public Slot GetSlot(int xOffset, int yOffset)
+	public void TestAction(Slot _slot, Action _action)
 	{
-		int x = slot.x + xOffset;
-		int y = slot.y + yOffset;
+		Slot tempSlot = GetSlot(_slot, _action.xOffset, _action.yOffset);
+		tempSlot.Highlight(_action.actionType);
+	}
 
-		if(x >= 5)
+	public Slot GetSlot(Slot _slot, int xOffset, int yOffset)
+	{
+		int x = _slot.x + xOffset;
+		int y = _slot.y + yOffset;
+
+		if (_slot.y == 1)
+		{
+			x = _slot.x - xOffset;
+			y = _slot.y - yOffset;
+		}
+
+		if (x >= 5)
 		{
 			x -= 5;
 		}
@@ -115,10 +135,20 @@ public class Unit : CastleObject
 
 		return GameManager.instance.board.slots[x, y];
 	}
+	public void Hide()
+	{
+		unitRenderer.sprite = hiddenSprite;
+		
+	}
+	public void Show()
+	{
+		unitRenderer.sprite = unitSprite;
+	}
 
 	public void Spawn()
 	{
 		transform.localScale = Vector3.zero;
+		CreateGemSlots();
 		spawnTimer = 0;
 	}
 
@@ -133,6 +163,7 @@ public class Unit : CastleObject
 		state = State.DRAGGED;
 		if(GameManager.instance.hoveredObject is Slot && !((Slot)GameManager.instance.hoveredObject).unit)
 		{
+			TestActions((Slot)GameManager.instance.hoveredObject);
 			transform.position = new Vector3(GameManager.instance.hoveredObject.transform.position.x, GameManager.instance.hoveredObject.transform.position.y, transform.position.z);
 		}
 		else
@@ -150,7 +181,33 @@ public class Unit : CastleObject
 			Place((Slot)GameManager.instance.hoveredObject);
 		}
 	}
-
+	public void SetGems(GemSlot.GemState _state)
+	{
+		for (int i = 0; i < gemCost; i++)
+		{
+			gemSlots[i].SetGem(_state);
+		}
+	}
+	public void CreateGemSlots()
+	{
+		gemSlots = new GemSlot[gemCost];
+		float arc = 60;
+		float angle = 270 - (arc / 2);
+		if (gemCost == 1)
+		{
+			angle = 270;
+		}
+		float step = arc / (gemCost - 1);
+		for (int i = 0; i < gemCost; i++)
+		{
+			GameObject gemSlot = Instantiate(GameManager.instance.gemSlotPrefab, transform);
+			gemSlots[i] = gemSlot.GetComponent<GemSlot>();
+			gemSlot.transform.localScale = Vector3.one * 0.5f;
+			Vector2 pos = Tools.Vector2FromAngle(angle);
+			gemSlot.transform.localPosition = pos / 2;
+			angle += step;
+		}
+	}
 	// Update is called once per frame
 	void Update ()
 	{
@@ -177,6 +234,7 @@ public class Unit : CastleObject
 				}
 				break;
 			case State.PLACED:
+				transform.localScale = Vector3.one * 0.75f;
 				if (spawnTimer < 1)
 				{
 					backingCircle.transform.localScale = Vector3.Lerp(Vector3.one, Vector3.one * 0.75f, spawnTimer);

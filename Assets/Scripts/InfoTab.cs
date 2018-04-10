@@ -12,6 +12,9 @@ public class InfoTab : MonoBehaviour
 
 	public Sprite sword;
 	public Sprite shield;
+	public Sprite staff;
+
+	public bool showValue;
 
 	public enum State
 	{
@@ -23,185 +26,181 @@ public class InfoTab : MonoBehaviour
 
 	public State tabState;
 
-	public enum InfoType
-	{
-		SWORD,
-		SHIELD
-	}
-
-	public InfoType infoType;
+	public Unit.ActionType actionType;
 
 	public float stateTimer;
 
-	public void Damage(int damage)
+	public int effectPos;
+
+	public Slot.Affliation affliation;
+
+	public void LoadTab(Slot.Effect _effect)
 	{
-		value = damage;
-		sr.color = GameManager.instance.attackColor;
-		
-		if(tabState == State.NONVISIBLE)
+		//loadedAction = _action;
+		if(value == 0)
 		{
-			stateTimer = 0;
-			tabState = State.SPAWN;
+			ShowTab();
+		}
+		value = _effect.value;
+		showValue = true;
+		actionType = _effect.actionType;
+		GameManager.EffectStyle style = GameManager.instance.GetStyle(actionType);
+		sr.color = style.effectColor;
+		icon.sprite = style.effectSprite;
+		showValue = style.showValue;
+		if(value <= 0)
+		{
+			HideTab();
 		}
 		else
 		{
-			//BOUNCE
+			valueText.text = value.ToString();
 		}
-		infoType = InfoType.SWORD;
-		icon.sprite = sword;
+	}
+
+	public void ShowTab()
+	{
+		stateTimer = 0;
+		tabState = State.SPAWN;
 		valueText.text = value.ToString();
 	}
-	public void LoseDamage(int damage)
+
+	public void HideTab()
 	{
-		value = damage;
-		sr.color = GameManager.instance.attackColor;
-		if(value <= 0)
+		stateTimer = 0;
+		tabState = State.DESPAWN;
+		valueText.text = "";
+	}
+
+	void NonVisibleState()
+	{
+		sr.size = Vector2.zero;
+		icon.transform.localScale = Vector3.zero;
+		valueText.gameObject.SetActive(false);
+		icon.transform.localPosition = new Vector3(0, 0, -0.1f);
+	}
+	void SpawnState()
+	{
+		if (stateTimer < 1)
 		{
-			if (tabState == State.VISIBLE)
+			sr.size = Vector2.Lerp(Vector2.zero, Vector2.one, stateTimer * 2);
+			if (stateTimer >= 0.4f && stateTimer < 0.7f)
 			{
-				stateTimer = 0;
-				tabState = State.DESPAWN;
+				icon.transform.localScale = Vector3.Lerp(Vector3.zero, Vector3.one * 2.1f, (stateTimer - 0.4f) / 0.3f);
+			}
+			else if (stateTimer >= 0.7f)
+			{
+				icon.transform.localScale = Vector3.Lerp(Vector3.one * 2.1f, Vector3.one * 2, (stateTimer - 0.7f) / 0.3f);
+			}
+
+		}
+		else if (stateTimer < 2)
+		{
+			if (showValue)
+			{
+				if (stateTimer < 1.4f)
+				{
+					sr.size = Vector2.Lerp(Vector2.one, new Vector2(2.2f, 1), (stateTimer - 1) / 0.4f);
+					icon.transform.localPosition = Vector3.Lerp(new Vector3(0, 0, -0.1f), new Vector3(-0.5f, 0, -0.1f), (stateTimer - 1) / 0.4f);
+				}
+				else if (stateTimer < 1.8f)
+				{
+					icon.transform.localPosition = new Vector3(-0.5f, 0, -0.1f);
+					sr.size = Vector2.Lerp(new Vector2(2.2f, 1), new Vector2(2f, 1), (stateTimer - 1.4f) / 0.4f);
+					valueText.gameObject.SetActive(true);
+					valueText.transform.localScale = Vector3.Lerp(Vector3.zero, Vector3.one * 4f, (stateTimer - 1.4f) / 0.4f);
+				}
 			}
 			else
 			{
-				//BOUNCE
+
 			}
-			infoType = InfoType.SWORD;
-			icon.sprite = sword;
-			valueText.gameObject.SetActive(false);
+		}
+		else if (stateTimer < 3)
+		{
+			if (actionType == Unit.ActionType.ATTACK)
+			{
+				sr.size = new Vector2(2, 1);
+				icon.transform.localPosition = new Vector3(-0.5f, 0, -0.1f);
+			}
+			tabState = State.VISIBLE;
+			stateTimer = 0;
 		}
 	}
-	public void Shield(int shielded)
+	void VisibleState()
 	{
-		value = shielded;
-		sr.color = GameManager.instance.shieldColor;
-		if (tabState == State.NONVISIBLE)
+
+	}
+	void DespawnState()
+	{
+		if (showValue)
 		{
-			stateTimer = 0;
-			tabState = State.SPAWN;
+			if (stateTimer < 0.4f)
+			{
+				sr.size = Vector2.Lerp(new Vector2(2f, 1), new Vector2(2.2f, 1), stateTimer / 0.4f);
+
+			}
+			else if (stateTimer < 0.8f)
+			{
+				sr.size = Vector2.Lerp(new Vector2(2.2f, 1), Vector2.one, (stateTimer - 1.4f) / 0.4f);
+				icon.transform.localPosition = Vector3.Lerp(new Vector3(-0.5f, 0, -0.1f), new Vector3(0, 0, -0.1f), (stateTimer - 0.4f) / 0.4f);
+			}
+			else if (stateTimer < 1.5f)
+			{
+				sr.size = Vector2.Lerp(Vector2.one, Vector2.zero, (stateTimer - 0.8f) * 2);
+				icon.transform.localScale = Vector3.Lerp(Vector2.one, Vector2.zero, (stateTimer - 0.8f) * 2);
+			}
+			else
+			{
+				if(value <= 0)
+				{
+					Destroy(gameObject);
+				}
+			}
 		}
 		else
 		{
-			//BOUNCE
-		}
-		infoType = InfoType.SHIELD;
-		icon.sprite = shield;
-	}
-	public void LoseShield(int shielded)
-	{
-		value = shielded;
-		sr.color = GameManager.instance.shieldColor;
-		if (value <= 0)
-		{
-			if (tabState == State.VISIBLE)
+			if (stateTimer < 0.8f)
 			{
-				stateTimer = 0;
-				tabState = State.DESPAWN;
+				sr.size = Vector2.Lerp(Vector2.one, Vector2.zero, stateTimer * 2);
+				icon.transform.localScale = Vector3.Lerp(Vector2.one, Vector2.zero, stateTimer * 2);
 			}
-			infoType = InfoType.SHIELD;
-			icon.sprite = shield;
+			else
+			{
+				if (value <= 0)
+				{
+					Destroy(gameObject);
+				}
+			}
 		}
 	}
+	
 	// Update is called once per frame
 	void Update ()
 	{
 		stateTimer += Time.deltaTime * 5;
+		if (affliation == Slot.Affliation.DEFENCE)
+		{
+			transform.localPosition = Vector3.Lerp(transform.localPosition, new Vector3(0, 0.5f + (effectPos * 0.3f), -0.4f), Time.deltaTime * 10);
+		}
+		else
+		{
+			transform.localPosition = Vector3.Lerp(transform.localPosition, new Vector3(0, -0.5f + (effectPos * -0.3f), -0.4f), Time.deltaTime * 10);
+		}
 		switch(tabState)
 		{
 			case State.NONVISIBLE:
-				sr.size = Vector2.zero;
-				icon.transform.localScale = Vector3.zero;
-				valueText.gameObject.SetActive(false);
-				icon.transform.localPosition = new Vector3(0, 0, -0.1f);
+				NonVisibleState();
 				break;
 			case State.SPAWN:
-				if(stateTimer < 1)
-				{
-					sr.size = Vector2.Lerp(Vector2.zero, Vector2.one, stateTimer * 2);
-					if(stateTimer >= 0.4f && stateTimer < 0.7f)
-					{
-						icon.transform.localScale = Vector3.Lerp(Vector3.zero, Vector3.one * 2.1f, (stateTimer - 0.4f)/0.3f);
-					}
-					else if(stateTimer >= 0.7f)
-					{
-						icon.transform.localScale = Vector3.Lerp(Vector3.one * 2.1f, Vector3.one * 2, (stateTimer - 0.7f) / 0.3f);
-					}
-
-				}
-				else if(stateTimer < 2)
-				{
-					if(infoType == InfoType.SWORD)
-					{
-						if (stateTimer < 1.4f)
-						{
-							sr.size = Vector2.Lerp(Vector2.one, new Vector2(2.2f, 1), (stateTimer - 1) / 0.4f);
-							icon.transform.localPosition = Vector3.Lerp(new Vector3(0, 0, -0.1f), new Vector3(-0.5f, 0, -0.1f), (stateTimer - 1) / 0.4f);
-						}
-						else if (stateTimer < 1.8f)
-						{
-							icon.transform.localPosition = new Vector3(-0.5f, 0, -0.1f);
-							sr.size = Vector2.Lerp(new Vector2(2.2f, 1), new Vector2(2f, 1), (stateTimer - 1.4f) / 0.4f);
-							valueText.gameObject.SetActive(true);
-							valueText.transform.localScale = Vector3.Lerp(Vector3.zero, Vector3.one * 4f, (stateTimer - 1.4f) / 0.4f);
-						}
-					}
-					else
-					{
-
-					}
-				}
-				else if(stateTimer < 3)
-				{
-					if (infoType == InfoType.SWORD)
-					{
-						sr.size = new Vector2(2, 1);
-						icon.transform.localPosition = new Vector3(-0.5f, 0, -0.1f);
-					}
-					tabState = State.VISIBLE;
-					stateTimer = 0;
-				}
-				
+				SpawnState();
 				break;
 			case State.VISIBLE:
-
+				VisibleState();
 				break;
 			case State.DESPAWN:
-					if (infoType == InfoType.SWORD)
-					{
-						if (stateTimer < 0.4f)
-						{
-							sr.size = Vector2.Lerp(new Vector2(2f, 1), new Vector2(2.2f, 1), stateTimer/ 0.4f);
-							
-						}
-						else if (stateTimer < 0.8f)
-						{
-							sr.size = Vector2.Lerp(new Vector2(2.2f, 1), Vector2.one, (stateTimer - 1.4f) / 0.4f);
-							icon.transform.localPosition = Vector3.Lerp(new Vector3(-0.5f, 0, -0.1f), new Vector3(0, 0, -0.1f), (stateTimer - 0.4f) / 0.4f);
-						}
-						else if(stateTimer < 1.5f)
-						{
-							sr.size = Vector2.Lerp(Vector2.one, Vector2.zero, (stateTimer - 0.8f) * 2);
-							icon.transform.localScale = Vector3.Lerp(Vector2.one, Vector2.zero, (stateTimer - 0.8f) * 2);
-						}
-						else
-						{
-							tabState = State.NONVISIBLE;
-						}
-					}
-					else
-					{
-						if (stateTimer < 0.8f)
-						{
-							sr.size = Vector2.Lerp(Vector2.one, Vector2.zero, stateTimer * 2);
-							icon.transform.localScale = Vector3.Lerp(Vector2.one, Vector2.zero, stateTimer * 2);
-						}
-						else
-						{
-							tabState = State.NONVISIBLE;
-						}
-				}
+				DespawnState();
 				break;
-
 		}
 	}
 }

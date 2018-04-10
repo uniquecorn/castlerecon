@@ -16,13 +16,17 @@ public class Board : CastleObject
 	protected override void Start ()
 	{
 		base.Start();
-		GameManager.instance.board = this;
+		Spawn();
+		
+		//CreateBoard();
+	}
+	public void Spawn()
+	{
+		//GameManager.instance.board = this;
 		coll.enabled = false;
 		boardRenderer.size = new Vector2(0, 0);
 		spawning = true;
 		spawnTimer = 0;
-		
-		//CreateBoard();
 	}
 
 	public void CreateBoard(int x = 5, int y = 2)
@@ -36,7 +40,33 @@ public class Board : CastleObject
 				slots[i, j] = tempSlot;
 				tempSlot.x = i;
 				tempSlot.y = j;
+				if(j == 0)
+				{
+					tempSlot.affliation = Slot.Affliation.OFFENCE;
+				}
+				else
+				{
+					tempSlot.affliation = Slot.Affliation.DEFENCE;
+				}
 				tempSlot.transform.SetParent(slotTransform);
+			}
+		}
+	}
+
+	public void HideDefence()
+	{
+		for (int i = 0; i < 5; i++)
+		{
+			for (int j = 0; j < 2; j++)
+			{
+				if(slots[i,j].affliation == Slot.Affliation.DEFENCE)
+				{
+					slots[i, j].HideSlot();
+				}
+				else
+				{
+					slots[i, j].unit.Hide();
+				}
 			}
 		}
 	}
