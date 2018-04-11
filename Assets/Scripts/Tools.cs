@@ -10,6 +10,7 @@ using System.Linq;
 
 public class Tools : MonoBehaviour
 {
+	public static string[] letters = new string[]{"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"};
 	public static T RandomObject<T>(T[] assets)
 	{
 		return assets[Random.Range(0, assets.Length)];
@@ -27,7 +28,6 @@ public class Tools : MonoBehaviour
     }
     public static Texture2D LoadTGA(Stream TGAStream)
     {
-
         using (BinaryReader r = new BinaryReader(TGAStream))
         {
             // Skip some header info we don't care about.
@@ -181,7 +181,7 @@ public class Tools : MonoBehaviour
     }
     public static float FreeLerp(float a, float b, float t)
     {
-        return (1.0f - t) * a + t * b;
+        return ((1.0f - t) * a) + (t * b);
     }
     public static Vector2 FreeLerp(Vector2 a, Vector2 b, float t)
     {
@@ -202,7 +202,7 @@ public class Tools : MonoBehaviour
 		float _r, _g, _b;
 		_r = Random.Range(0.0f, 1.0f);
 		total -= _r;
-		_g = Mathf.Min(UnityEngine.Random.Range(0.0f, total), 1.0f);
+		_g = Mathf.Min(Random.Range(0.0f, total), 1.0f);
 		total -= _g;
 		_b = total;
 		Color result = new Color()
@@ -261,99 +261,14 @@ public class Tools : MonoBehaviour
             return value;
         }
     }
-    public static string RandomLetter(bool spaces = false)
+    public static string RandomLetter()
     {
-        string val = "";
-        int i = UnityEngine.Random.Range(0, 26 + (spaces ? 5 : 0));
-        switch (i)
-        {
-            case 0:
-                val = "A";
-                break;
-            case 1:
-                val = "B";
-                break;
-            case 2:
-                val = "C";
-                break;
-            case 3:
-                val = "D";
-                break;
-            case 4:
-                val = "E";
-                break;
-            case 5:
-                val = "F";
-                break;
-            case 6:
-                val = "G";
-                break;
-            case 7:
-                val = "H";
-                break;
-            case 8:
-                val = "I";
-                break;
-            case 9:
-                val = "J";
-                break;
-            case 10:
-                val = "K";
-                break;
-            case 11:
-                val = "L";
-                break;
-            case 12:
-                val = "M";
-                break;
-            case 13:
-                val = "N";
-                break;
-            case 14:
-                val = "O";
-                break;
-            case 15:
-                val = "P";
-                break;
-            case 16:
-                val = "Q";
-                break;
-            case 17:
-                val = "R";
-                break;
-            case 18:
-                val = "S";
-                break;
-            case 19:
-                val = "T";
-                break;
-            case 20:
-                val = "U";
-                break;
-            case 21:
-                val = "V";
-                break;
-            case 22:
-                val = "W";
-                break;
-            case 23:
-                val = "X";
-                break;
-            case 24:
-                val = "Y";
-                break;
-            case 25:
-                val = "Z";
-                break;
-            default:
-                val = " ";
-                break;
-        }
-        return val;
+        int i = Random.Range(0, 26);
+        return letters[i];
     }
     public static float Hermite(float start, float end, float value)
     {
-        return Mathf.Lerp(start, end, value * value * (3.0f - 2.0f * value));
+        return Mathf.Lerp(start, end, value * value * (3.0f - (2.0f * value)));
     }
     public static float Sinerp(float start, float end, float value)
     {
@@ -366,7 +281,7 @@ public class Tools : MonoBehaviour
     public static float Berp(float start, float end, float value)
     {
         value = Mathf.Clamp01(value);
-        value = (Mathf.Sin(value * Mathf.PI * (0.2f + 2.5f * value * value * value)) * Mathf.Pow(1f - value, 2.2f) + value) * (1f + (1.2f * (1f - value)));
+        value = (Mathf.Sin(value * Mathf.PI * (0.2f + (2.5f * value * value * value))) * Mathf.Pow(1f - value, 2.2f) + value) * (1f + (1.2f * (1f - value)));
         return start + (end - start) * value;
     }
     public static float SmoothStep(float x, float min, float max)
@@ -431,7 +346,8 @@ public class Tools : MonoBehaviour
     {
         float min = 0.0f;
         float max = 360.0f;
-        float half = Mathf.Abs((max - min) / 2.0f);//half the distance between min and max
+		//half the distance between min and max
+		float half = Mathf.Abs((max - min) / 2.0f);
         float retval = 0.0f;
         float diff = 0.0f;
 
@@ -445,7 +361,7 @@ public class Tools : MonoBehaviour
             diff = -((max - end) + start) * value;
             retval = start + diff;
         }
-        else retval = start + (end - start) * value;
+        else retval = start + ((end - start) * value);
 
         // Debug.Log("Start: "  + start + "   End: " + end + "  Value: " + value + "  Half: " + half + "  Diff: " + diff + "  Retval: " + retval);
         return retval;

@@ -23,6 +23,8 @@ public class GameManager : MonoBehaviour
 
 	public EffectStyle[] effectStyles;
 
+	public Sprite hiddenSprite;
+
 	public Board board;
 	public GemSlot[] gemSlots;
 	public int gemsAvailable;
@@ -35,6 +37,7 @@ public class GameManager : MonoBehaviour
 		OFFENCE,
 		DONE
 	}
+	public GameState gameState;
 
 	public static GameManager instance;
 	// Use this for initialization
@@ -87,6 +90,15 @@ public class GameManager : MonoBehaviour
 			return false;
 		}
 	}
+	public void AddGems(int gems = 1)
+	{
+		for (int i = 0; i < gems; i++)
+		{
+			gemsAvailable++;
+			print((3 - gemsAvailable));
+			gemSlots[(3 - gemsAvailable)].SetGem(GemSlot.GemState.ACTIVE);
+		}
+	}
 
 	// Update is called once per frame
 	void Update ()
@@ -94,7 +106,6 @@ public class GameManager : MonoBehaviour
 		Vector3 worldTouchPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 		Vector2 touchPos = new Vector2(worldTouchPos.x, worldTouchPos.y);
 		Collider2D[] colls = Physics2D.OverlapPointAll(touchPos);
-
 		if(hoveredObject)
 		{
 			if (colls.Length <= 0)
@@ -182,7 +193,7 @@ public class GameManager : MonoBehaviour
 		{
 			if (colls.Length <= 0)
 			{
-
+				//uh oh
 			}
 			else if (colls.Length == 1)
 			{

@@ -135,6 +135,8 @@ MonoBehaviour:
   unitRenderer: {fileID: 212106015077733800}
   unitSprite: {fileID: 0}
   hiddenSprite: {fileID: 0}
+  circle: {fileID: 21300000, guid: b5d7e6f51972e0e45bc5b83fdd43d6f3, type: 3}
+  rectangle: {fileID: 21300000, guid: 5da460ca9b1561c439271a924d086208, type: 3}
   health: 1
   gemCost: 0
   actions:
@@ -144,6 +146,7 @@ MonoBehaviour:
     actionType: 0
   slot: {fileID: 0}
   state: 0
+  gemSlots: []
 --- !u!212 &212106015077733800
 SpriteRenderer:
   m_ObjectHideFlags: 1

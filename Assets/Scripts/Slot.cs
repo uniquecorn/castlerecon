@@ -27,15 +27,24 @@ public class Slot : CastleObject
 	{
 		public Unit.ActionType actionType;
 		public int value;
+		public int immune;
 		public InfoTab infoTab;
+		public Affliation affliation;
 
-		public void SetValue(int _value)
+		public void Set(Unit.Action _action)
 		{
-			value = _value;
+			value = _action.value;
+			immune = _action.immune;
 		}
-		public void AdjustValue(int _value)
+		public void Add(Unit.Action _action)
 		{
-			value += _value;
+			value += _action.value;
+			immune += _action.immune;
+		}
+		public void Remove(Unit.Action _action)
+		{
+			value -= _action.value;
+			immune -= _action.immune;
 		}
 		public void SetTab(InfoTab _infoTab)
 		{
@@ -107,10 +116,10 @@ public class Slot : CastleObject
 		bool effectExists = false;
 		for (int j = 0; j < effects.Count; j++)
 		{
-			if(effects[j].actionType == _action.actionType)
+			if(effects[j].actionType == _action.actionType && effects[j].affliation == _action.affliation)
 			{
 				effectExists = true;
-				effects[j].AdjustValue(_action.value);
+				effects[j].Add(_action);
 				break;
 			}
 		}
@@ -124,10 +133,10 @@ public class Slot : CastleObject
 	{
 		for (int j = 0; j < effects.Count; j++)
 		{
-			if (effects[j].actionType == _action.actionType)
+			if (effects[j].actionType == _action.actionType && effects[j].affliation == _action.affliation)
 			{
-				effects[j].AdjustValue(-_action.value);
-				if(effects[j].value <= 0)
+				effects[j].Remove(_action);
+				if(effects[j].value <= 0 && effects[j].immune <= 0)
 				{
 					DestroyEffect(effects[j]);
 				}
@@ -158,7 +167,9 @@ public class Slot : CastleObject
 		{
 			actionType = _action.actionType,
 			value = _action.value,
-			infoTab = tempTab
+			immune = _action.immune,
+			infoTab = tempTab,
+			affliation = _action.affliation
 		};
 		tempTab.LoadTab(tempEffect);
 		effects.Add(tempEffect);

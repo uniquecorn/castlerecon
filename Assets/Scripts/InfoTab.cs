@@ -5,16 +5,19 @@ using UnityEngine;
 public class InfoTab : MonoBehaviour
 {
 	public int value;
+	public int immune;
 
 	public TextMesh valueText;
 	public SpriteRenderer sr;
 	public SpriteRenderer icon;
+	public SpriteRenderer disabled;
 
 	public Sprite sword;
 	public Sprite shield;
 	public Sprite staff;
 
 	public bool showValue;
+	public bool hideImmune;
 
 	public enum State
 	{
@@ -42,13 +45,19 @@ public class InfoTab : MonoBehaviour
 			ShowTab();
 		}
 		value = _effect.value;
-		showValue = true;
+		immune = _effect.immune;
+		
 		actionType = _effect.actionType;
 		GameManager.EffectStyle style = GameManager.instance.GetStyle(actionType);
 		sr.color = style.effectColor;
 		icon.sprite = style.effectSprite;
 		showValue = style.showValue;
-		if(value <= 0)
+		if (immune > 0)
+		{
+			sr.color = Color.gray;
+			showValue = false;
+		}
+		if (value <= 0 && immune <= 0)
 		{
 			HideTab();
 		}
@@ -118,7 +127,7 @@ public class InfoTab : MonoBehaviour
 		}
 		else if (stateTimer < 3)
 		{
-			if (actionType == Unit.ActionType.ATTACK)
+			if (showValue)
 			{
 				sr.size = new Vector2(2, 1);
 				icon.transform.localPosition = new Vector3(-0.5f, 0, -0.1f);

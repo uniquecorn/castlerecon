@@ -9,7 +9,8 @@ public class Unit : CastleObject
 	public SpriteRenderer unitRenderer;
 
 	public Sprite unitSprite;
-	public Sprite hiddenSprite;
+	public Sprite circle;
+	public Sprite rectangle;
 
 	public enum ActionType
 	{
@@ -19,12 +20,15 @@ public class Unit : CastleObject
 	}
 
 	[System.Serializable]
-	public struct Action
+	public class Action
 	{
 		public int xOffset;
 		public int yOffset;
 		public int value;
+		public int immune;
 		public ActionType actionType;
+		[HideInInspector]
+		public Slot.Affliation affliation;
 	}
 
 	public int health;
@@ -46,11 +50,12 @@ public class Unit : CastleObject
 	public void Place(Slot _slot)
 	{
 		coll.enabled = false;
-		backingCircle.maskInteraction = SpriteMaskInteraction.VisibleInsideMask;
-		backingMask.gameObject.SetActive(false);
+		backingCircle.sprite = rectangle;
+		backingMask.sprite = rectangle;
+		//backingMask.gameObject.SetActive(false);
 		state = State.PLACED;
 		slot = _slot;
-		slot.cardMask.gameObject.SetActive(true);
+		//slot.cardMask.gameObject.SetActive(true);
 		//SetGems(GemSlot.GemState.ACTIVE);
 		//slot.affliation = Slot.Affliation.OFFENCE;
 		slot.unit = this;
@@ -61,13 +66,14 @@ public class Unit : CastleObject
 	{
 		coll.enabled = true;
 		RemoveActions();
+		backingCircle.sprite = circle;
 		backingCircle.transform.localScale = Vector3.one;
-		backingMask.gameObject.SetActive(true);
-		backingCircle.maskInteraction = SpriteMaskInteraction.None;
+		backingMask.sprite = circle;
+		//backingCircle.maskInteraction = SpriteMaskInteraction.None;
 		spawnTimer = 0;
 		//SetGems(GemSlot.GemState.INACTIVE);
 		state = State.DRAGGED;
-		slot.cardMask.gameObject.SetActive(false);
+		//slot.cardMask.gameObject.SetActive(false);
 		slot = null;
 	}
 
@@ -98,6 +104,7 @@ public class Unit : CastleObject
 	public void DoAction(Action _action)
 	{
 		Slot tempSlot = GetSlot(slot, _action.xOffset, _action.yOffset);
+		_action.affliation = slot.affliation;
 		tempSlot.DoAction(_action);
 	}
 	
@@ -137,8 +144,7 @@ public class Unit : CastleObject
 	}
 	public void Hide()
 	{
-		unitRenderer.sprite = hiddenSprite;
-		
+		unitRenderer.sprite = GameManager.instance.hiddenSprite;
 	}
 	public void Show()
 	{
@@ -163,8 +169,31 @@ public class Unit : CastleObject
 		state = State.DRAGGED;
 		if(GameManager.instance.hoveredObject is Slot && !((Slot)GameManager.instance.hoveredObject).unit)
 		{
-			TestActions((Slot)GameManager.instance.hoveredObject);
-			transform.position = new Vector3(GameManager.instance.hoveredObject.transform.position.x, GameManager.instance.hoveredObject.transform.position.y, transform.position.z);
+			switch (GameManager.instance.gameState)
+			{
+				case GameManager.GameState.DEFENCE:
+					if (((Slot)GameManager.instance.hoveredObject).affliation == Slot.Affliation.DEFENCE)
+					{
+						TestActions((Slot)GameManager.instance.hoveredObject);
+						transform.position = new Vector3(GameManager.instance.hoveredObject.transform.position.x, GameManager.instance.hoveredObject.transform.position.y, transform.position.z);
+					}
+					else
+					{
+						transform.position = new Vector3(pos.x, pos.y, transform.position.z);
+					}
+					break;
+				case GameManager.GameState.OFFENCE:
+					if (((Slot)GameManager.instance.hoveredObject).affliation == Slot.Affliation.OFFENCE)
+					{
+						TestActions((Slot)GameManager.instance.hoveredObject);
+						transform.position = new Vector3(GameManager.instance.hoveredObject.transform.position.x, GameManager.instance.hoveredObject.transform.position.y, transform.position.z);
+					}
+					else
+					{
+						transform.position = new Vector3(pos.x, pos.y, transform.position.z);
+					}
+					break;
+			}
 		}
 		else
 		{
@@ -178,8 +207,44 @@ public class Unit : CastleObject
 		
 		if (GameManager.instance.hoveredObject is Slot && !((Slot)GameManager.instance.hoveredObject).unit)
 		{
-			Place((Slot)GameManager.instance.hoveredObject);
+			switch(GameManager.instance.gameState)
+			{
+				case GameManager.GameState.DEFENCE:
+					if(((Slot)GameManager.instance.hoveredObject).affliation == Slot.Affliation.DEFENCE)
+					{
+						Place((Slot)GameManager.instance.hoveredObject);
+					}
+					else
+					{
+						Clear();
+					}
+					break;
+				case GameManager.GameState.OFFENCE:
+					if (((Slot)GameManager.instance.hoveredObject).affliation == Slot.Affliation.OFFENCE)
+					{
+						Place((Slot)GameManager.instance.hoveredObject);
+					}
+					else
+					{
+						Clear();
+					}
+					break;
+			}
 		}
+		else
+		{
+			Clear();
+		}
+	}
+	public void Clear()
+	{
+		Destroy(gameObject);
+		Effects.instance.UseEffect("Poof", transform.position, null);
+		RemoveGems();
+	}
+	public void RemoveGems()
+	{
+		GameManager.instance.AddGems(gemCost);
 	}
 	public void SetGems(GemSlot.GemState _state)
 	{
@@ -241,11 +306,11 @@ public class Unit : CastleObject
 				}
 				else if (spawnTimer < 2)
 				{
-					backingCircle.transform.localScale = Vector3.Lerp(Vector3.one * 0.75f, new Vector3(1.5f,1.8f,0.75f), spawnTimer - 1);
+					backingCircle.transform.localScale = Vector3.Lerp(Vector3.one * 0.75f, new Vector3(1.3f,1.3f,0.75f), spawnTimer - 1);
 				}
 				else
 				{
-					backingCircle.transform.localScale = Vector3.Lerp(backingCircle.transform.localScale, new Vector3(1.5f, 1.8f, 0.75f), Time.deltaTime);
+					backingCircle.transform.localScale = Vector3.Lerp(backingCircle.transform.localScale, new Vector3(1.3f, 1.3f, 0.75f), Time.deltaTime);
 				}
 				break;
 		}

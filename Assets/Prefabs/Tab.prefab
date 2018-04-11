@@ -172,13 +172,17 @@ MonoBehaviour:
   valueText: {fileID: 102644363309156488}
   sr: {fileID: 212223237712737512}
   icon: {fileID: 212479947799630948}
+  disabled: {fileID: 0}
   sword: {fileID: 21300010, guid: 7404676319838d44298cb12845b87543, type: 3}
   shield: {fileID: 21300012, guid: 7404676319838d44298cb12845b87543, type: 3}
   staff: {fileID: 21300014, guid: 7404676319838d44298cb12845b87543, type: 3}
   showValue: 0
+  hideImmune: 0
   tabState: 0
   actionType: 0
   stateTimer: 0
+  effectPos: 0
+  affliation: 0
 --- !u!212 &212223237712737512
 SpriteRenderer:
   m_ObjectHideFlags: 1
@@ -214,7 +218,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 2ea733182ea2c774bb16053c0d7f3b50, type: 3}
-  m_Color: {r: 0.83823526, g: 0.26503026, b: 0.26503026, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
