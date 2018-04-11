@@ -78,7 +78,7 @@ public class GameManager : MonoBehaviour
 	{
 		if(gemsAvailable >= gems)
 		{
-			for(int i = (3 - gemsAvailable); i < (3 - gemsAvailable + gems);i++)
+			for(int i = (3 - gemsAvailable); i < (3 - gemsAvailable + gems); i++)
 			{
 				gemSlots[i].SetGem(GemSlot.GemState.INACTIVE);
 			}
@@ -98,6 +98,16 @@ public class GameManager : MonoBehaviour
 			print((3 - gemsAvailable));
 			gemSlots[(3 - gemsAvailable)].SetGem(GemSlot.GemState.ACTIVE);
 		}
+	}
+
+	void StartHover(Collider2D coll)
+	{
+		if(hoveredObject)
+		{
+			hoveredObject.ExitHover();
+		}
+		hoveredObject = coll.GetComponent<CastleObject>();
+		hoveredObject.EnterHover();
 	}
 
 	// Update is called once per frame
@@ -127,9 +137,7 @@ public class GameManager : MonoBehaviour
 							}
 							else
 							{
-								hoveredObject.ExitHover();
-								hoveredObject = colls[0].GetComponent<CastleObject>();
-								hoveredObject.EnterHover();
+								StartHover(colls[0]);
 							}
 						}
 						else
@@ -147,8 +155,7 @@ public class GameManager : MonoBehaviour
 						else
 						{
 							hoveredObject.ExitHover();
-							hoveredObject = colls[0].GetComponent<CastleObject>();
-							hoveredObject.EnterHover();
+							StartHover(colls[0]);
 						}
 					}
 				}
@@ -182,8 +189,7 @@ public class GameManager : MonoBehaviour
 					else
 					{
 						hoveredObject.ExitHover();
-						hoveredObject = colls[chosenColl].GetComponent<CastleObject>();
-						hoveredObject.EnterHover();
+						StartHover(colls[chosenColl]);
 					}
 				}
 				
@@ -201,14 +207,12 @@ public class GameManager : MonoBehaviour
 				{
 					if(colls[0] != selectedObject.coll)
 					{
-						hoveredObject = colls[0].GetComponent<CastleObject>();
-						hoveredObject.EnterHover();
+						StartHover(colls[0]);
 					}
 				}
 				else
 				{
-					hoveredObject = colls[0].GetComponent<CastleObject>();
-					hoveredObject.EnterHover();
+					StartHover(colls[0]);
 				}
 			}
 			else
@@ -234,8 +238,7 @@ public class GameManager : MonoBehaviour
 						}
 					}
 				}
-				hoveredObject = colls[chosenColl].GetComponent<CastleObject>();
-				hoveredObject.EnterHover();
+				StartHover(colls[chosenColl]);
 			}
 		}
 		if(selectedObject)

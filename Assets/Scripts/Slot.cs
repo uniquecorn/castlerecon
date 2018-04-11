@@ -83,7 +83,7 @@ public class Slot : CastleObject
 
 	void UpdateTabs()
 	{
-		for(int i = 0; i < effects.Count;i++)
+		for(int i = 0; i < effects.Count; i++)
 		{
 			effects[i].UpdateTab(effects.Count - i - 1);
 		}
@@ -91,7 +91,7 @@ public class Slot : CastleObject
 
 	void CheckTabs(Unit.Action _action)
 	{
-		
+		//checkingTabs
 	}
 
 	public override void Tap(Vector2 pos)
@@ -191,7 +191,7 @@ public class Slot : CastleObject
 
 	public void ApplyEffects()
 	{
-		
+		//APPLY
 	}
 
 	//public void Shield()

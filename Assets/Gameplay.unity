@@ -716,6 +716,7 @@ MonoBehaviour:
     effectColor: {r: 0.6985294, g: 0.31844726, b: 0.6880445, a: 1}
     effectSprite: {fileID: 21300014, guid: 7404676319838d44298cb12845b87543, type: 3}
     showValue: 1
+  hiddenSprite: {fileID: 21300018, guid: 7404676319838d44298cb12845b87543, type: 3}
   board: {fileID: 0}
   gemSlots:
   - {fileID: 550164499}
@@ -724,6 +725,7 @@ MonoBehaviour:
   gemsAvailable: 3
   boardPrefab: {fileID: 1718726006437140, guid: 60174beccc5761648b902a76d0982e9d,
     type: 2}
+  gameState: 0
 --- !u!114 &864868541
 MonoBehaviour:
   m_ObjectHideFlags: 0

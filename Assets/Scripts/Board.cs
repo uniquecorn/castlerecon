@@ -61,12 +61,9 @@ public class Board : CastleObject
 			{
 				if(slots[i,j].affliation == Slot.Affliation.DEFENCE)
 				{
-					slots[i, j].HideSlot();
-				}
-				else
-				{
 					slots[i, j].unit.Hide();
 				}
+				slots[i, j].HideSlot();
 			}
 		}
 	}
