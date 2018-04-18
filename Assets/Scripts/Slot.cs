@@ -25,6 +25,7 @@ public class Slot : CastleObject
 		public Unit.ActionType actionType;
 		public int value;
 		public int immune;
+		public bool apply;
 		public InfoTab infoTab;
 		public GameManager.Affliation affliation;
 
@@ -188,9 +189,69 @@ public class Slot : CastleObject
 		}
 	}
 
-	public void ApplyEffects()
+	public bool ApplyEffects()
 	{
 		//APPLY
+		for (int i = 0; i < effects.Count; i++)
+		{
+			if(!CheckImmune(effects[i].actionType) && !CheckShield() && effects[i].actionType != Unit.ActionType.SHIELD && !effects[i].apply)
+			{
+				switch (effects[i].actionType)
+				{
+					case Unit.ActionType.ATTACK:
+							unit.health -= effects[i].value;
+						break;
+					case Unit.ActionType.MAGICDAMAGE:
+							unit.health -= effects[i].value;
+						break;
+				}
+				effects[i].apply = true;
+			}
+		}
+		if (unit.health <= 0)
+		{
+			unit.Die();
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	public bool CheckImmune(Unit.ActionType actionType)
+	{
+		for (int i = 0; i < effects.Count; i++)
+		{
+			if (effects[i].actionType == actionType)
+			{
+				if (effects[i].immune > 0)
+				{
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	public bool CheckShield()
+	{
+		bool shielded = false;
+		for (int i = 0; i < effects.Count; i++)
+		{
+			if(effects[i].actionType == Unit.ActionType.SHIELD)
+			{
+				if(effects[i].immune > 0)
+				{
+					return false;
+				}
+				else if(effects[i].value > 0)
+				{
+					return true;
+				}
+			}
+		}
+		return shielded;
 	}
 
 	void HighlightLogic()

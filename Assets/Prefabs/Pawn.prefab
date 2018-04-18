@@ -153,7 +153,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1296737680518822}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.92, y: -2.87, z: -0.2}
+  m_LocalPosition: {x: -2, y: 0, z: -0.2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4330218028217578}
@@ -192,13 +192,13 @@ MonoBehaviour:
   backingOutline: {fileID: 212038203652131504}
   backingMask: {fileID: 331204879231330366}
   unitRenderer: {fileID: 212598240549471758}
-  unitSprite: {fileID: 21300000, guid: ec7bda0dad6c56640a012d65c5c960c8, type: 3}
-  unitAttackSprite: {fileID: 21300000, guid: 0845dffeeb61cf64a8a9649e00563f29, type: 3}
+  unitSprite: {fileID: 21300000, guid: 0defa3d8585da1c4bbd09ffe3fd53345, type: 3}
+  unitAttackSprite: {fileID: 21300010, guid: 0defa3d8585da1c4bbd09ffe3fd53345, type: 3}
   circle: {fileID: 21300000, guid: b5d7e6f51972e0e45bc5b83fdd43d6f3, type: 3}
   rectangle: {fileID: 21300000, guid: 47fc63395c7a17448a7a9c9b406874a2, type: 3}
   spriteOffset: {x: 0.1, y: -0.25}
   health: 1
-  gemCost: 1
+  gemCost: 0
   actions:
   - xOffset: 1
     yOffset: 1
@@ -291,7 +291,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: ec7bda0dad6c56640a012d65c5c960c8, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 0defa3d8585da1c4bbd09ffe3fd53345, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

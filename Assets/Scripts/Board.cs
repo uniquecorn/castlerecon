@@ -89,11 +89,16 @@ public class Board : CastleObject
 				}
 				break;
 			case GameManager.Affliation.BREAKDOWN:
+				ApplyEffects();
 				for (int i = 0; i < 5; i++)
 				{
 					for (int j = 0; j < 2; j++)
 					{
 						slots[i, j].ShowSlot();
+						//if (slots[i, j].affliation == GameManager.Affliation.OFFENCE)
+						//{
+						//	slots[i, j].displayMode = Slot.DisplayMode.IDLE;
+						//}
 					}
 				}
 				break;
@@ -102,13 +107,21 @@ public class Board : CastleObject
 
 	public void ApplyEffects()
 	{
+		bool killed = false;
 		for (int i = 0; i < 5; i++)
 		{
 			for (int j = 0; j < 2; j++)
 			{
-				slots[i, j].ApplyEffects();
+				if(slots[i, j].ApplyEffects())
+				{
+					killed = true;
+				}
 			}
 		}
+		//if(killed)
+		//{
+		//	ApplyEffects();
+		//}
 	}
 
 	public void ModifyDefenceSlot(bool reduce = false)

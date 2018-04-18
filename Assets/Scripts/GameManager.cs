@@ -137,12 +137,12 @@ public class GameManager : MonoBehaviour
 		TouchManager.TouchUpdate();
 		if(showConfirm)
 		{
-			confirmButtonTrans.anchoredPosition = Vector2.Lerp(confirmButtonTrans.anchoredPosition, new Vector2(0, 300), Time.deltaTime * 5);
+			confirmButtonTrans.anchoredPosition = Vector2.Lerp(confirmButtonTrans.anchoredPosition, new Vector2(0, 210), Time.deltaTime * 5);
 			confirmButton.alpha = Mathf.Lerp(confirmButton.alpha, 1, Time.deltaTime * 5);
 		}
 		else
 		{
-			confirmButtonTrans.anchoredPosition = Vector2.Lerp(confirmButtonTrans.anchoredPosition, new Vector2(0, 250), Time.deltaTime * 5);
+			confirmButtonTrans.anchoredPosition = Vector2.Lerp(confirmButtonTrans.anchoredPosition, new Vector2(0, 200), Time.deltaTime * 5);
 			confirmButton.alpha = Mathf.Lerp(confirmButton.alpha, 0, Time.deltaTime * 5);
 		}
 	}
