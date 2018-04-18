@@ -85,9 +85,9 @@ BoxCollider2D:
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
-    border: {x: 0.25, y: 0.25, z: 0.25, w: 0.25}
+    border: {x: 0.125, y: 0.125, z: 0.125, w: 0.125}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1, y: 1}
+    oldSize: {x: 0.5, y: 0.5}
     newSize: {x: 5, y: 2.4}
     adaptiveTilingThreshold: 0.5
     drawMode: 1
@@ -108,9 +108,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coll: {fileID: 0}
-  objectState: 0
+  hoverState: 0
+  selectedState: 0
   boardRenderer: {fileID: 212715826366829536}
   slotTransform: {fileID: 4363838821004398}
+  defenceUsedSlots: 0
+  offenceUsedSlots: 0
   active: 0
 --- !u!212 &212715826366829536
 SpriteRenderer:

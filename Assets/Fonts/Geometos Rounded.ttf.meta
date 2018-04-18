@@ -1,0 +1,23 @@
+fileFormatVersion: 2
+guid: 6c3f0dec1493a304f91a633b9612e598
+timeCreated: 1523631125
+licenseType: Pro
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 1
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Geometos Rounded
+  fontNames:
+  - Geometos
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 1
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

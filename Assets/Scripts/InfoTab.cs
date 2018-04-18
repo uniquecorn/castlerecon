@@ -17,7 +17,7 @@ public class InfoTab : MonoBehaviour
 	public Sprite staff;
 
 	public bool showValue;
-	public bool hideImmune;
+	public bool hidden;
 
 	public enum State
 	{
@@ -35,12 +35,12 @@ public class InfoTab : MonoBehaviour
 
 	public int effectPos;
 
-	public Slot.Affliation affliation;
+	public GameManager.Affliation affliation;
 
 	public void LoadTab(Slot.Effect _effect)
 	{
 		//loadedAction = _action;
-		if(value == 0)
+		if(value == 0 && immune == 0)
 		{
 			ShowTab();
 		}
@@ -52,10 +52,15 @@ public class InfoTab : MonoBehaviour
 		sr.color = style.effectColor;
 		icon.sprite = style.effectSprite;
 		showValue = style.showValue;
+		
 		if (immune > 0)
 		{
 			sr.color = Color.gray;
 			showValue = false;
+		}
+		if (hidden)
+		{
+			return;
 		}
 		if (value <= 0 && immune <= 0)
 		{
@@ -79,6 +84,7 @@ public class InfoTab : MonoBehaviour
 		stateTimer = 0;
 		tabState = State.DESPAWN;
 		valueText.text = "";
+		hidden = true;
 	}
 
 	void NonVisibleState()
@@ -161,7 +167,7 @@ public class InfoTab : MonoBehaviour
 			}
 			else
 			{
-				if(value <= 0)
+				if(value <= 0 && immune <= 0)
 				{
 					Destroy(gameObject);
 				}
@@ -176,7 +182,7 @@ public class InfoTab : MonoBehaviour
 			}
 			else
 			{
-				if (value <= 0)
+				if (value <= 0 && immune <= 0)
 				{
 					Destroy(gameObject);
 				}
@@ -188,13 +194,13 @@ public class InfoTab : MonoBehaviour
 	void Update ()
 	{
 		stateTimer += Time.deltaTime * 5;
-		if (affliation == Slot.Affliation.DEFENCE)
+		if (affliation == GameManager.Affliation.DEFENCE)
 		{
-			transform.localPosition = Vector3.Lerp(transform.localPosition, new Vector3(0, 0.5f + (effectPos * 0.3f), -0.4f), Time.deltaTime * 10);
+			transform.localPosition = Vector3.Lerp(transform.localPosition, new Vector3(0, 0.75f + (effectPos * 0.3f), -0.4f), Time.deltaTime * 10);
 		}
 		else
 		{
-			transform.localPosition = Vector3.Lerp(transform.localPosition, new Vector3(0, -0.5f + (effectPos * -0.3f), -0.4f), Time.deltaTime * 10);
+			transform.localPosition = Vector3.Lerp(transform.localPosition, new Vector3(0, -0.75f + (effectPos * -0.3f), -0.4f), Time.deltaTime * 10);
 		}
 		switch(tabState)
 		{

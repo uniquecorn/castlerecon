@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Castle;
 
 public class UnitButton : CastleObject
 {
@@ -11,16 +12,17 @@ public class UnitButton : CastleObject
 	protected override void Start ()
 	{
 		base.Start();
+		unitRenderer.transform.localPosition = unit.spriteOffset;
 		unitRenderer.sprite = unit.unitRenderer.sprite;
 		CreateGemSlots();
 	}
 
-	public override void Tap(Vector2 pos)
+	public override void Tap()
 	{
-		base.Tap(pos);
+		base.Tap();
 		if(GameManager.instance.UseGems(unit.gemCost))
 		{
-			GameManager.instance.selectedObject = CreateUnit();
+			TouchManager.Select(CreateUnit(),true);
 		}
 	}
 
@@ -45,7 +47,8 @@ public class UnitButton : CastleObject
 			GameObject gemSlot = Instantiate(GameManager.instance.gemSlotPrefab, transform);
 			gemSlot.transform.localScale = Vector3.one * 0.5f;
 			Vector2 pos = Tools.Vector2FromAngle(angle);
-			gemSlot.transform.localPosition = pos/2;
+			Vector3 gemPos = new Vector3(pos.x / 2, pos.y / 2, -0.2f);
+			gemSlot.transform.localPosition = gemPos;
 			gemSlot.GetComponent<GemSlot>().SetGem(GemSlot.GemState.INACTIVE);
 			angle += step;
 		}

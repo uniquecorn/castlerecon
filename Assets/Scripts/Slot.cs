@@ -2,24 +2,21 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Castle;
 
 public class Slot : CastleObject
 {
 	public int x, y;
 
-	public enum Affliation
-	{
-		DEFENCE,
-		OFFENCE
-	}
-
 	public enum DisplayMode
 	{
 		IDLE,
+		DISABLED,
+		HIDE,
 		ATTACK
 	}
 
-	public Affliation affliation;
+	public GameManager.Affliation affliation;
 	public DisplayMode displayMode;
 
 	[System.Serializable]
@@ -29,7 +26,7 @@ public class Slot : CastleObject
 		public int value;
 		public int immune;
 		public InfoTab infoTab;
-		public Affliation affliation;
+		public GameManager.Affliation affliation;
 
 		public void Set(Unit.Action _action)
 		{
@@ -62,6 +59,7 @@ public class Slot : CastleObject
 
 	public SpriteRenderer cardInner;
 	public SpriteRenderer cardOutline;
+	public SpriteRenderer cardStripe;
 	public SpriteMask cardMask;
 
 	//UI
@@ -73,12 +71,12 @@ public class Slot : CastleObject
 	public void Highlight(Unit.ActionType _actionType)
 	{
 		highlighted = true;
-		cardOutline.color = GameManager.instance.GetStyle(_actionType).effectColor;
+		cardOutline.color = cardStripe.color = GameManager.instance.GetStyle(_actionType).effectColor;
 	}
 
 	public void Unhighlight()
 	{
-		cardOutline.color = Color.clear;
+		cardOutline.color = Color.white;
 	}
 
 	void UpdateTabs()
@@ -86,22 +84,6 @@ public class Slot : CastleObject
 		for(int i = 0; i < effects.Count; i++)
 		{
 			effects[i].UpdateTab(effects.Count - i - 1);
-		}
-	}
-
-	void CheckTabs(Unit.Action _action)
-	{
-		//checkingTabs
-	}
-
-	public override void Tap(Vector2 pos)
-	{
-		base.Tap(pos);
-		if (unit)
-		{
-			unit.Remove();
-			GameManager.instance.selectedObject = unit;
-			unit = null;
 		}
 	}
 
@@ -155,7 +137,7 @@ public class Slot : CastleObject
 	{
 		InfoTab tempTab = Instantiate(infoTabPrefab, transform).GetComponent<InfoTab>();
 		tempTab.affliation = affliation;
-		if(affliation == Affliation.DEFENCE)
+		if(affliation == GameManager.Affliation.DEFENCE)
 		{
 			tempTab.transform.localPosition = new Vector3(0, 0.5f, -0.4f);
 		}
@@ -187,6 +169,23 @@ public class Slot : CastleObject
 		{
 			effects[i].infoTab.HideTab();
 		}
+		if(unit)
+		{
+			unit.Hide();
+		}
+	}
+
+	public void ShowSlot()
+	{
+		for (int i = 0; i < effects.Count; i++)
+		{
+			effects[i].infoTab.hidden = false;
+			effects[i].infoTab.ShowTab();
+		}
+		if (unit)
+		{
+			unit.Show();
+		}
 	}
 
 	public void ApplyEffects()
@@ -194,24 +193,11 @@ public class Slot : CastleObject
 		//APPLY
 	}
 
-	//public void Shield()
-	//{
-	//	shielded++;
-		
-	//	infoTab.Shield(shielded);
-	//}
-
-	public override void ExitHover()
-	{
-		base.ExitHover();
-		//Unhighlight();
-	}
-
 	void HighlightLogic()
 	{
 		if (!highlighted)
 		{
-			cardOutline.color = Color.Lerp(cardOutline.color, Color.clear, Time.deltaTime * 5);
+			cardOutline.color = cardStripe.color = Color.Lerp(cardOutline.color, Color.white, Time.deltaTime * 5);
 		}
 		else
 		{
@@ -219,8 +205,46 @@ public class Slot : CastleObject
 		}
 	}
 
+	void DisplayLogic()
+	{
+		switch(displayMode)
+		{
+			case DisplayMode.IDLE:
+				cardStripe.gameObject.SetActive(false);
+				break;
+			case DisplayMode.DISABLED:
+				//cardMask.gameObject.SetActive(true);
+				cardStripe.gameObject.SetActive(true);
+				break;
+		}
+	}
+
+	public override void Tap()
+	{
+		base.Tap();
+		if (unit && displayMode == DisplayMode.IDLE && affliation == GameManager.instance.turn)
+		{
+			unit.Remove();
+			TouchManager.Select(unit, true);
+			unit = null;
+		}
+	}
+
+	public override void Hover()
+	{
+		base.Hover();
+		if(displayMode == DisplayMode.IDLE && !unit)
+		{
+			if (TouchManager.selectedObject && TouchManager.selectedObject is Unit)
+			{
+				((Unit)TouchManager.selectedObject).HeldOverSlot(this);
+			}
+		}
+	}
+
 	private void Update()
 	{
 		HighlightLogic();
+		DisplayLogic();
 	}
 }

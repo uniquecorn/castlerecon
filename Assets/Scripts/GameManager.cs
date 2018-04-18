@@ -1,14 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using Castle;
 
 public class GameManager : MonoBehaviour
 {
-	[HideInInspector]
-	public CastleObject selectedObject;
-	[HideInInspector]
-	public CastleObject hoveredObject;
-
 	public Slot slotPrefab;
 	public GameObject gemSlotPrefab;
 
@@ -20,10 +17,19 @@ public class GameManager : MonoBehaviour
 		public Sprite effectSprite;
 		public bool showValue;
 	}
-
+	public enum Affliation
+	{
+		DEFENCE,
+		OFFENCE,
+		BREAKDOWN
+	}
 	public EffectStyle[] effectStyles;
 
 	public Sprite hiddenSprite;
+	public Sprite cardSprite;
+	public Sprite cardOSprite;
+	public Sprite circleSprite;
+	public Sprite circleOSprite;
 
 	public Board board;
 	public GemSlot[] gemSlots;
@@ -31,13 +37,14 @@ public class GameManager : MonoBehaviour
 
 	public GameObject boardPrefab;
 
-	public enum GameState
-	{
-		DEFENCE,
-		OFFENCE,
-		DONE
-	}
-	public GameState gameState;
+	public Affliation turn;
+	public Text turnDisplay;
+	public int offenceTurn;
+
+	public bool showConfirm;
+	public CanvasGroup confirmButton;
+	public Text confirmButtonText;
+	private RectTransform confirmButtonTrans;
 
 	public static GameManager instance;
 	// Use this for initialization
@@ -48,6 +55,8 @@ public class GameManager : MonoBehaviour
 
 	private void Start()
 	{
+		TouchManager.TouchInit(TouchManager.TouchInputMode.SIMPLE);
+		confirmButtonTrans = confirmButton.GetComponent<RectTransform>();
 		CreateBoard();
 	}
 	
@@ -69,9 +78,22 @@ public class GameManager : MonoBehaviour
 		return effectStyles[0];
 	}
 
-	public void HideDefence()
+	public void ConfirmFormation()
 	{
-		board.HideDefence();
+		showConfirm = false;
+		switch(turn)
+		{
+			case Affliation.DEFENCE:
+				turn = Affliation.OFFENCE;
+				board.SetView();
+				ResetGems();
+				offenceTurn = 0;
+				break;
+			case Affliation.OFFENCE:
+				turn = Affliation.BREAKDOWN;
+				board.SetView();
+				break;
+		}
 	}
 
 	public bool UseGems(int gems = 1)
@@ -100,175 +122,28 @@ public class GameManager : MonoBehaviour
 		}
 	}
 
-	void StartHover(Collider2D coll)
+	public void ResetGems()
 	{
-		if(hoveredObject)
+		gemsAvailable = 3;
+		for(int i = 0; i < 3; i++)
 		{
-			hoveredObject.ExitHover();
+			gemSlots[i].SetGem(GemSlot.GemState.ACTIVE);
 		}
-		hoveredObject = coll.GetComponent<CastleObject>();
-		hoveredObject.EnterHover();
 	}
 
 	// Update is called once per frame
 	void Update ()
 	{
-		Vector3 worldTouchPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-		Vector2 touchPos = new Vector2(worldTouchPos.x, worldTouchPos.y);
-		Collider2D[] colls = Physics2D.OverlapPointAll(touchPos);
-		if(hoveredObject)
+		TouchManager.TouchUpdate();
+		if(showConfirm)
 		{
-			if (colls.Length <= 0)
-			{
-				hoveredObject.ExitHover();
-				hoveredObject = null;
-			}
-			else
-			{
-				if(colls.Length == 1)
-				{
-					if (selectedObject)
-					{
-						if (colls[0] != selectedObject.coll)
-						{
-							if (hoveredObject.coll == colls[0])
-							{
-								hoveredObject.Hover();
-							}
-							else
-							{
-								StartHover(colls[0]);
-							}
-						}
-						else
-						{
-							hoveredObject.ExitHover();
-							hoveredObject = null;
-						}
-					}
-					else
-					{
-						if (hoveredObject.coll == colls[0])
-						{
-							hoveredObject.Hover();
-						}
-						else
-						{
-							hoveredObject.ExitHover();
-							StartHover(colls[0]);
-						}
-					}
-				}
-				else
-				{
-					float closestDist = 99;
-					int chosenColl = 0;
-					for(int i = 0; i < colls.Length; i++)
-					{
-						if(colls[i].transform.position.z < closestDist)
-						{
-							if (selectedObject)
-							{
-								if (colls[i] != selectedObject.coll)
-								{
-									closestDist = colls[i].transform.position.z;
-									chosenColl = i;
-								}
-							}
-							else
-							{
-								closestDist = colls[i].transform.position.z;
-								chosenColl = i;
-							}
-						}
-					}
-					if (hoveredObject.coll == colls[chosenColl])
-					{
-						hoveredObject.Hover();
-					}
-					else
-					{
-						hoveredObject.ExitHover();
-						StartHover(colls[chosenColl]);
-					}
-				}
-				
-			}
+			confirmButtonTrans.anchoredPosition = Vector2.Lerp(confirmButtonTrans.anchoredPosition, new Vector2(0, 300), Time.deltaTime * 5);
+			confirmButton.alpha = Mathf.Lerp(confirmButton.alpha, 1, Time.deltaTime * 5);
 		}
 		else
 		{
-			if (colls.Length <= 0)
-			{
-				//uh oh
-			}
-			else if (colls.Length == 1)
-			{
-				if (selectedObject)
-				{
-					if(colls[0] != selectedObject.coll)
-					{
-						StartHover(colls[0]);
-					}
-				}
-				else
-				{
-					StartHover(colls[0]);
-				}
-			}
-			else
-			{
-				float closestDist = 99;
-				int chosenColl = 0;
-				for (int i = 0; i < colls.Length; i++)
-				{
-					if (colls[i].transform.position.z < closestDist)
-					{
-						if (selectedObject)
-						{
-							if(colls[i] != selectedObject.coll)
-							{
-								closestDist = colls[i].transform.position.z;
-								chosenColl = i;
-							}
-						}
-						else
-						{
-							closestDist = colls[i].transform.position.z;
-							chosenColl = i;
-						}
-					}
-				}
-				StartHover(colls[chosenColl]);
-			}
-		}
-		if(selectedObject)
-		{
-			if (Input.GetMouseButton(0))
-			{
-				selectedObject.Hold(touchPos);
-			}
-			else if (Input.GetMouseButtonUp(0))
-			{
-				selectedObject.Release(touchPos);
-				selectedObject = null;
-			}
-		}
-		else
-		{
-			if(hoveredObject)
-			{
-				if (Input.GetMouseButtonDown(0))
-				{
-					selectedObject = hoveredObject;
-					hoveredObject.ExitHover();
-					hoveredObject = null;
-					selectedObject.Tap(touchPos);
-				}
-			}
-		}
-		if(Input.GetKeyDown("x"))
-		{
-			board.HideDefence();
+			confirmButtonTrans.anchoredPosition = Vector2.Lerp(confirmButtonTrans.anchoredPosition, new Vector2(0, 250), Time.deltaTime * 5);
+			confirmButton.alpha = Mathf.Lerp(confirmButton.alpha, 0, Time.deltaTime * 5);
 		}
 	}
 }

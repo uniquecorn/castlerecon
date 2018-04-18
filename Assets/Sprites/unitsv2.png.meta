@@ -7,6 +7,8 @@ TextureImporter:
     21300000: unitsv2_0
     21300002: unitsv2_1
     21300004: unitsv2_2
+    21300006: unitsv2_3
+    21300008: unitsv2_4
   externalObjects: {}
   serializedVersion: 4
   mipmaps:
@@ -49,7 +51,7 @@ TextureImporter:
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
-  spritePixelsToUnits: 110
+  spritePixelsToUnits: 96
   alphaUsage: 1
   alphaIsTransparency: 1
   spriteTessellationDetail: -1
@@ -120,7 +122,7 @@ TextureImporter:
       name: unitsv2_1
       rect:
         serializedVersion: 2
-        x: 256
+        x: 128
         y: 128
         width: 128
         height: 128
@@ -134,8 +136,36 @@ TextureImporter:
       name: unitsv2_2
       rect:
         serializedVersion: 2
+        x: 256
+        y: 128
+        width: 128
+        height: 128
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: unitsv2_3
+      rect:
+        serializedVersion: 2
         x: 384
         y: 128
+        width: 128
+        height: 128
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: unitsv2_4
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
         width: 128
         height: 128
       alignment: 0
